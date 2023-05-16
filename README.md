@@ -8,5 +8,5 @@
 ## 使用
 
 1. 安装依赖：`pip install -r requirements.txt`
-2. 运行： `python create_paper_gui.py`
+2. 运行： `python create_paper_gui.py`，输出在xlsx题库同目录下output文件夹
 3. pyinstaller打包请加选项：`--hidden-import openpyxl.cell._writer`
