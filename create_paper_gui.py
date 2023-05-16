@@ -9,7 +9,7 @@ class App(ttk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
-        title_label = ttk.Label(self, text="防雷题库自动组卷工具 ver0.1", font=("fangsong", 20))
+        title_label = ttk.Label(self, text="防雷题库自动组卷工具 ver0.2", font=("fangsong", 20))
         file_label = ttk.Label(self, text="题库文件")
         self.file_var = StringVar()
         file_entry = ttk.Entry(self, state="readonly", textvariable=self.file_var)

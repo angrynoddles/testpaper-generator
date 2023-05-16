@@ -5,7 +5,6 @@ from collections import namedtuple
 import random
 from docx.enum.text import WD_ALIGN_PARAGRAPH  # 段落居中
 from docx.oxml.ns import qn
-from docx.shared import Inches
 from docx.shared import Pt
 from docx import Document
 from openpyxl import load_workbook
@@ -25,8 +24,6 @@ fh.setFormatter(formatter)
 logger.addHandler(ch)
 logger.addHandler(fh)
 
-# FIELDS = ("sn", "type", "level", "question", "choice_a", "choice_b", "choice_c", "choice_d",
-#           "choice_e", "answer", "reference", "category")
 
 Row = namedtuple(
     "Row",
@@ -46,7 +43,7 @@ Row = namedtuple(
     ],
 )
 
-
+# 如xlsx题库文件所在目录存在output文件夹则删除并新建
 def init_output_folder(xlsx_path):
     logger.info(os.path.dirname(xlsx_path))
     output_path = os.path.join(os.path.dirname(xlsx_path), "output")
@@ -55,7 +52,7 @@ def init_output_folder(xlsx_path):
     os.mkdir(output_path)
     return output_path
 
-
+# 打乱选项
 def mess_up_choices(row: Row):
     trans = str.maketrans("ABCDE", "01234")
     correct_list = list(map(int, list(row.answer.translate(trans))))
@@ -80,27 +77,30 @@ def mess_up_choices(row: Row):
 
 
 def add_sheet_part(sheet, q_doc, a_doc, mumber_of_questions, is_choice=True, is_mess_up=True):
+    # 生成科目行号字典
     category_dict = dict()
     chosen_q_set = set()
     a_para = ""
-    for row_no, cells in enumerate(sheet.iter_rows(2), 2):
+    for row_no, cells in enumerate(sheet.iter_rows(2), 2): # 跳过表头
         r = Row(*[c.value for c in cells])
-        if r.category in category_dict:
-            category_dict[r.category].append(row_no)
-        else:
-            category_dict.update(
-                {
-                    r.category: [
-                        row_no,
-                    ]
-                }
-            )
+        if r.category: # 防止输入空行
+            if r.category in category_dict:
+                category_dict[r.category].append(row_no)
+            else:
+                category_dict.update(
+                    {
+                        r.category: [
+                            row_no,
+                        ]
+                    }
+                )
     logger.info(category_dict)
+    # 根据科目循环抽题
     for cat in cycle(category_dict.keys()):
         random.shuffle(category_dict[cat])
         try:
             chosen_q_set.add(category_dict[cat].pop())
-        except IndexError:
+        except IndexError: # 科目抽完跳过
             continue
         if len(chosen_q_set) == mumber_of_questions:
             break
@@ -129,7 +129,7 @@ def add_sheet_part(sheet, q_doc, a_doc, mumber_of_questions, is_choice=True, is_
     a_doc.add_paragraph(a_para)  # 答案
 
 
-def create(xlsx_path, number_of_copies, is_reorder):
+def create(xlsx_path, number_of_copies, is_mess_up):
     wb = load_workbook(xlsx_path, data_only=True)
 
     dan_sheet, duo_sheet, tian_sheet, pan_sheet, jian_sheet = wb.worksheets
@@ -163,7 +163,7 @@ def create(xlsx_path, number_of_copies, is_reorder):
         answerdocument.add_paragraph(dan_para)  # 答案
 
         add_sheet_part(dan_sheet, document, answerdocument,
-                       8, is_mess_up=is_reorder)
+                       8, is_mess_up=is_mess_up)
 
         # ------------------------------*************************------------------------------
         duo_para = "第二部分  多选题(8题)"
@@ -171,7 +171,7 @@ def create(xlsx_path, number_of_copies, is_reorder):
         answerdocument.add_paragraph(duo_para)  # 答案
 
         add_sheet_part(duo_sheet, document, answerdocument,
-                       8, is_mess_up=is_reorder)
+                       8, is_mess_up=is_mess_up)
 
         # ------------------------------*************************------------------------------
         tian_para = "第三部分  填空题(8题)"
@@ -200,8 +200,6 @@ def create(xlsx_path, number_of_copies, is_reorder):
         savepath = os.path.join(output_path, f"测试{count}.docx")
         document.save(savepath)
         answerdocument.save(answer_savepath)
-
-        document
 
     wb.close()
 
