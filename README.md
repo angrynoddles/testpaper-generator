@@ -3,7 +3,7 @@
 
 参考了[wukai0909](https://github.com/wukai0909)的项目[Generating-WORD-Test-Papers-from-Excel-Question-Bank](https://github.com/wukai0909/Generating-WORD-Test-Papers-from-Excel-Question-Bank)
 
-增加了科目抽取、打乱选项等功能，运行环境python 3.10
+增加了单元抽取、打乱选项等功能，运行环境python 3.10
 
 ## 使用
 

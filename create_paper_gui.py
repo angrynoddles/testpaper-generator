@@ -17,9 +17,9 @@ class App(ttk.Frame):
         copies_label = ttk.Label(self, text="出题份数")
         self.copies_var = IntVar(value=1)
         copies_spin = ttk.Spinbox(self, from_=1, to=10, textvariable=self.copies_var)
-        self.shuffle_var = BooleanVar()
-        shuffle_check = ttk.Checkbutton(
-            self, text="打乱选项", variable=self.shuffle_var, onvalue=True
+        self.messup_var = BooleanVar()
+        messup_check = ttk.Checkbutton(
+            self, text="打乱选项", variable=self.messup_var, onvalue=True
         )
         confirm_button = ttk.Button(self, text="生成", command=self.create)
         close_button = ttk.Button(self, text="退出", command=self.quit)
@@ -31,17 +31,17 @@ class App(ttk.Frame):
         open_button.grid(column=3, row=1, sticky=E, padx=3)
         copies_label.grid(column=0, row=2, sticky=E)
         copies_spin.grid(column=1, row=2, sticky=W, padx=3)
-        shuffle_check.grid(column=1, row=3, sticky=W)
+        messup_check.grid(column=1, row=3, sticky=W)
         confirm_button.grid(column=1, row=4)
         close_button.grid(column=2, row=4)
 
     def add_file(self):
-        self.file_var.set(askopenfilename(filetypes=[("Excel files","*.xlsx")]))
+        self.file_var.set(askopenfilename(filetypes=[("Excel files", "*.xlsx")]))
 
     def create(self):
         xlsx_path = self.file_var.get()
         number_of_copies = self.copies_var.get()
-        is_mess_up = self.shuffle_var.get()
+        is_mess_up = self.messup_var.get()
         if not xlsx_path:
             showerror(message="必须选择一个题库！")
         else:
